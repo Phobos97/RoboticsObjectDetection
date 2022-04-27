@@ -25,7 +25,7 @@ class BounceBot(Picarx):
         self.max_speed = 50
 
         self.dir_servo_current_angle = 0
-        self.dir_servo_max_angle = 40
+        self.dir_servo_max_angle = 30
         self.dir_servo_angular_speed = 3  # deg / frame
 
         self.camera_servo1_current_angle = 0
