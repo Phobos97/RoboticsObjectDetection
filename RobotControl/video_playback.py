@@ -15,7 +15,7 @@ def read_video(path):
 
 
 def main():
-    path = "videos/20220427-164541.h264"
+    path = "../TestVideos/20220427-170057.h264"
     video = read_video(path)
 
     fps = 24

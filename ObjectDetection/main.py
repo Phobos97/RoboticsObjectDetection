@@ -1,11 +1,16 @@
 import cv2
+import numpy as np
+from RobotControl.video_playback import read_video
+
 
 thres = 0.45  # Threshold to detect object
 
-cap = cv2.VideoCapture(1)
-cap.set(3, 1280)
-cap.set(4, 720)
-cap.set(10, 70)
+# cap = cv2.VideoCapture(1)
+# cap.set(3, 1280)
+# cap.set(4, 720)
+# cap.set(10, 70)
+
+video = read_video(path="../TestVideos/task1/20220502-131951.h264")
 
 classNames = []
 classFile = 'coco.names'
@@ -22,9 +27,8 @@ with open(classFile,'rt') as f:
     net.setInputMean((127.5, 127.5, 127.5))
     net.setInputSwapRB(True)
 
-    while True:
-        success, img = cap.read()
-        img = cv2.imread("box_photo.jpeg")
+    for frame in video:
+        img = frame
 
         classIds, confs, bbox = net.detect(img, confThreshold=thres)
         print(classIds, bbox)
