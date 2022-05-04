@@ -89,6 +89,7 @@ class BounceBot(Picarx):
         )
         self.set_dir_servo_angle(self.dir_servo_current_angle)
 
+    # functions for manual control
     def look_horizontal(self, direction):
         if direction == 1:
             self.camera_servo1_current_angle += self.camera_servo1_angular_speed
@@ -130,13 +131,125 @@ class BounceBot(Picarx):
             self.turret_servo_current_angle -= self.turret_servo_angular_speed
         self.set_turret_servo_angle(self.turret_servo_current_angle)
 
-    def right_turn(self):
-        pass
+    def right_turn_90(self):
+        """
+        Stops and turns the robot right by 90 degrees.
 
-    def left_turn(self):
-        pass
+        If the robot is faced in the x direction, it will turn to the y direction.
+        It moves an additional +/- 8 cm in the x direction.
+        It moves an additional +/- 38 cm in the y direction.
+        :return:
+        """
+        self.move(0)
+        self.set_direction_servo_angle(50)
+        time.sleep(1)
+        self.move(1)
+        time.sleep(1.4)
+        self.move(0)
+        self.set_direction_servo_angle(0)
 
-    def u_turn(self):
+    def right_turn_270(self):
+        """
+        Stops and turns the robot by right by rotating 270 degrees left.
+
+        It will first move forward and then turn left.
+        It will stop approximately at the position it started, only rotated right by 90 degrees.
+        :return:
+        """
+
+        self.move(0)
+        time.sleep(0.5)
+        self.move(1)
+        time.sleep(1.25)
+        self.move(0)
+        time.sleep(0.5)
+        self.set_direction_servo_angle(-50)
+        time.sleep(1)
+        self.move(1)
+        time.sleep(3.9)
+        self.move(0)
+        self.set_direction_servo_angle(0)
+        time.sleep(0.5)
+        self.move(1)
+        time.sleep(0.2)
+        self.move(0)
+
+    def left_turn_90(self):
+        """
+        Stops and turns the robot left by 90 degrees.
+
+        If the robot is faced in the -x direction, it will turn to the y direction.
+        It moves an additional +/- 8 cm in the x direction.
+        It moves an additional +/- 38 cm in the y direction.
+        :return:
+        """
+        self.move(0)
+        self.set_direction_servo_angle(-50)
+        time.sleep(1)
+        self.move(1)
+        time.sleep(1.40)
+        self.move(0)
+        self.set_direction_servo_angle(0)
+
+    def left_turn_270(self):
+        """
+        Stops and turns the robot by right by rotating 270 degrees left.
+
+        It will first move forward and then turn left.
+        It will stop approximately at the position it started, only rotated right by 90 degrees.
+        :return:
+        """
+
+        self.move(0)
+        time.sleep(0.5)
+        self.move(1)
+        time.sleep(1.25)
+        self.move(0)
+        time.sleep(0.5)
+        self.set_direction_servo_angle(50)
+        time.sleep(1)
+        self.move(1)
+        time.sleep(3.9)
+        self.move(0)
+        self.set_direction_servo_angle(0)
+        time.sleep(0.5)
+        self.move(1)
+        time.sleep(0.2)
+        self.move(0)
+
+    def u_turn_right(self):
+        self.right_turn_90()
+
+        self.move(0)
+        time.sleep(0.5)
+        self.set_direction_servo_angle(-50)
+        time.sleep(1)
+        self.move(1)
+        time.sleep(3.9)
+        self.move(0)
+        self.set_direction_servo_angle(0)
+        time.sleep(0.5)
+        self.move(1)
+        time.sleep(0.4)
+        self.move(0)
+
+    def u_turn_left(self):
+        self.left_turn_90()
+
+        self.move(0)
+        time.sleep(0.5)
+        self.set_direction_servo_angle(50)
+        time.sleep(1)
+        self.move(1)
+        time.sleep(3.9)
+        self.move(0)
+        self.set_direction_servo_angle(0)
+        time.sleep(0.5)
+        self.move(1)
+        time.sleep(0.4)
+        self.move(0)
+
+    def around_obstacle(self):
         pass
 
 

@@ -1,8 +1,6 @@
 from bouncebot_control import BounceBot
 import pygame
 import cv2
-import os
-import glob
 import numpy as np
 from picamera.array import PiRGBArray
 from picamera import PiCamera
@@ -24,7 +22,7 @@ class ManualControl:
         pygame.display.set_caption('BounceBot Manual Control')
 
         # parameters
-        self.speed = 10
+        self.speed = 5
         self.recording = False
         self.recording_timeout = 0
 
@@ -93,7 +91,6 @@ class ManualControl:
 
                 print("Recording stopped")
                 self.camera.stop_recording()
-
 
         # keep track of these cooldown timers to make sure we don't activate twice
         if self.recording_timeout > 0:
