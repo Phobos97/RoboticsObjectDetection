@@ -114,9 +114,9 @@ def straight(mode):
 
         # initialize bouncebot
         bb = BounceBot()
-
+        # initialize object detector
         detector = ObjectDetector()
-
+        # initialize timer
         timer = Timer()
 
         try:
