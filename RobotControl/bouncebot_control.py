@@ -25,7 +25,7 @@ class BounceBot(Picarx):
         self.max_speed = 50
 
         self.dir_servo_current_angle = 0
-        self.dir_servo_max_angle = 30
+        self.dir_servo_max_angle = 40
         self.dir_servo_angular_speed = 3  # deg / frame
 
         self.camera_servo1_current_angle = 0
@@ -131,24 +131,32 @@ class BounceBot(Picarx):
             self.turret_servo_current_angle -= self.turret_servo_angular_speed
         self.set_turret_servo_angle(self.turret_servo_current_angle)
 
-    def right_turn_90(self):
+    def turn_90(self, direction='right'):
         """
-        Stops and turns the robot right by 90 degrees.
+        Stops and turns the robot right or left by 90 degrees.
 
         If the robot is faced in the x direction, it will turn to the y direction.
         It moves an additional +/- 8 cm in the x direction.
         It moves an additional +/- 38 cm in the y direction.
         :return:
         """
+
+        if direction == 'right':
+            angle = 30
+        elif direction == 'left':
+            angle = -30
+        else:
+            raise ValueError('direction must be either "right" or "left"')
+
         self.move(0)
-        self.set_direction_servo_angle(50)
+        self.set_direction_servo_angle(angle)
         time.sleep(1)
         self.move(1)
         time.sleep(1.4)
         self.move(0)
         self.set_direction_servo_angle(0)
 
-    def right_turn_270(self):
+    def turn_270(self, direction='right'):
         """
         Stops and turns the robot by right by rotating 270 degrees left.
 
@@ -157,13 +165,20 @@ class BounceBot(Picarx):
         :return:
         """
 
+        if direction == 'right':
+            angle = -30
+        elif direction == 'left':
+            angle = 30
+        else:
+            raise ValueError('direction must be either "right" or "left"')
+
         self.move(0)
         time.sleep(0.5)
         self.move(1)
         time.sleep(1.25)
         self.move(0)
         time.sleep(0.5)
-        self.set_direction_servo_angle(-50)
+        self.set_direction_servo_angle(angle)
         time.sleep(1)
         self.move(1)
         time.sleep(3.9)
@@ -174,55 +189,17 @@ class BounceBot(Picarx):
         time.sleep(0.2)
         self.move(0)
 
-    def left_turn_90(self):
-        """
-        Stops and turns the robot left by 90 degrees.
+    def u_turn(self, direction='right'):
+        if direction == 'right':
+            angle = -30
+        elif direction == 'left':
+            angle = 30
+        else:
+            raise ValueError('direction must be either "right" or "left"')
 
-        If the robot is faced in the -x direction, it will turn to the y direction.
-        It moves an additional +/- 8 cm in the x direction.
-        It moves an additional +/- 38 cm in the y direction.
-        :return:
-        """
+        self.turn_90(direction)
         self.move(0)
-        self.set_direction_servo_angle(-50)
-        time.sleep(1)
-        self.move(1)
-        time.sleep(1.40)
-        self.move(0)
-        self.set_direction_servo_angle(0)
-
-    def left_turn_270(self):
-        """
-        Stops and turns the robot by right by rotating 270 degrees left.
-
-        It will first move forward and then turn left.
-        It will stop approximately at the position it started, only rotated right by 90 degrees.
-        :return:
-        """
-
-        self.move(0)
-        time.sleep(0.5)
-        self.move(1)
-        time.sleep(1.25)
-        self.move(0)
-        time.sleep(0.5)
-        self.set_direction_servo_angle(50)
-        time.sleep(1)
-        self.move(1)
-        time.sleep(3.9)
-        self.move(0)
-        self.set_direction_servo_angle(0)
-        time.sleep(0.5)
-        self.move(1)
-        time.sleep(0.2)
-        self.move(0)
-
-    def u_turn_right(self):
-        self.right_turn_90()
-
-        self.move(0)
-        time.sleep(0.5)
-        self.set_direction_servo_angle(-50)
+        self.set_direction_servo_angle(angle)
         time.sleep(1)
         self.move(1)
         time.sleep(3.9)
@@ -233,24 +210,46 @@ class BounceBot(Picarx):
         time.sleep(0.4)
         self.move(0)
 
-    def u_turn_left(self):
-        self.left_turn_90()
+    def around_obstacle(self, direction='right'):
+        """
+        Turn around the box when it is at 25cm from the front of the robot.
+        :param direction:
+        :return:
+        """
+
+        if direction == 'right':
+            dir_mod = 1
+        elif direction == 'left':
+            dir_mod = -1
+        else:
+            raise ValueError('direction must be either "right" or "left"')
 
         self.move(0)
+        self.set_direction_servo_angle(dir_mod * 15)
         time.sleep(0.5)
-        self.set_direction_servo_angle(50)
-        time.sleep(1)
         self.move(1)
-        time.sleep(3.9)
+        time.sleep(1)
+        self.move(0)
+
+        self.set_direction_servo_angle(dir_mod * -30)
+        time.sleep(0.5)
+        self.move(1)
+        time.sleep(1.3)
+        self.move(0)
+
+        self.set_direction_servo_angle(dir_mod * 35)
+        time.sleep(0.5)
+        self.move(1)
+        time.sleep(0.7)
+        self.move(0)
+        #
+        # self.set_direction_servo_angle(dir_mod * 35)
+        # time.sleep(0.5)
+        # self.move(0.5)
+        # time.sleep(1)
+
         self.move(0)
         self.set_direction_servo_angle(0)
-        time.sleep(0.5)
-        self.move(1)
-        time.sleep(0.4)
-        self.move(0)
-
-    def around_obstacle(self):
-        pass
 
 
 def test_controls():
