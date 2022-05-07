@@ -242,11 +242,6 @@ class BounceBot(Picarx):
         self.move(1)
         time.sleep(0.7)
         self.move(0)
-        #
-        # self.set_direction_servo_angle(dir_mod * 35)
-        # time.sleep(0.5)
-        # self.move(0.5)
-        # time.sleep(1)
 
         self.move(0)
         self.set_direction_servo_angle(0)
