@@ -1,7 +1,12 @@
-from bouncebot_control import BounceBot
-import pygame
+import argparse
 import cv2
 import numpy as np
+import pygame
+
+from plot_distance_vs_time import distance_to_time
+from Main.timer import Timer
+from ObjectDetection.object_detection import ObjectDetector
+from bouncebot_control import BounceBot
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 import time
@@ -40,7 +45,6 @@ class ManualControl:
                 self.bouncebot.look_horizontal(direction)
             elif i == 4:
                 self.bouncebot.rotate_turret(direction)
-
 
     def update(self):
         pygame.event.pump()
@@ -101,6 +105,47 @@ class ManualControl:
         self.process_directions(directions)
 
 
+def straight(mode):
+    with PiCamera() as camera:
+        camera.resolution = (640, 480)
+        camera.framerate = 24
+        rawCapture = PiRGBArray(camera, size=(640, 480))
+        time.sleep(0.5)
+
+        # initialize bouncebot
+        bb = BounceBot()
+
+        detector = ObjectDetector()
+
+        timer = Timer()
+
+        try:
+            for i in range(2):
+                timer.start_timer()
+                bb.move(1)
+
+                for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+                    if timer.get_timer() < distance_to_time(2):
+                        bb.move(0)
+                        break
+                    if mode == 2:
+                        obj, direction = detector.check_for_object(frame=frame, distance_to_dodge=25, show_video=True)
+                        if obj is not None:
+                            print("OBJECT DETECTED!")
+                            timer.pause_timer()
+                            bb.move(0)
+                            bb.around_obstacle(direction=direction)
+                            timer.resume_timer()
+                if i == 0:
+                    print("U-TURN")
+                    bb.u_turn()
+        finally:
+            camera.close()
+            rawCapture.close()
+            pygame.quit()
+            bb.close()
+
+
 def main():
     # initialize camera
     with PiCamera() as camera:
@@ -138,4 +183,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--challenge_num", help="specifies which challenge the code runs on [1/2/3/4]", default=1)
+    args = parser.parse_args()
+
+    # main()
+    straight(args.challenge_num)
