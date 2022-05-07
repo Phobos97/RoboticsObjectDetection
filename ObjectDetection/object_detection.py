@@ -3,16 +3,21 @@ from operator import itemgetter
 import cv2
 import numpy as np
 from RobotControl.video_playback import read_video
+import os
+
 
 
 class ObjectDetector:
     def __init__(self, object_names=["CUP", "BOOK", "BOTTLE"], threshold=.45):
         self.class_names = []
-        class_file = 'coco.names'
+
+        file_path = os.path.realpath(__file__)
+        class_file = os.path.join(os.path.dirname(file_path), 'coco.names')
         with open(class_file, 'rt') as f:
             self.class_names = f.read().rstrip('\n').split('\n')
-        config_path = 'ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt'
-        weights_path = 'frozen_inference_graph.pb'
+
+        config_path = os.path.join(os.path.dirname(file_path), 'ssd_mobilenet_v3_large_coco_2020_01_14.pbtxt')
+        weights_path = os.path.join(os.path.dirname(file_path), 'frozen_inference_graph.pb')
         self.net = cv2.dnn_DetectionModel(weights_path, config_path)
         self.net.setInputSize(320, 320)
         self.net.setInputScale(1.0 / 127.5)
