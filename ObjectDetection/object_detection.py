@@ -6,7 +6,7 @@ from RobotControl.video_playback import read_video
 
 
 class ObjectDetector:
-    def __init__(self, object_names, threshold):
+    def __init__(self, object_names=["CUP", "BOOK", "BOTTLE"], threshold=.45):
         self.class_names = []
         class_file = 'coco.names'
         with open(class_file, 'rt') as f:
@@ -51,9 +51,9 @@ class ObjectDetector:
                 right_edge = 640 - (object[2][0] + object[2][2])
 
                 if left_edge > right_edge:
-                    dodge_directions.append("Left")
+                    dodge_directions.append("left")
                 else:
-                    dodge_directions.append("Right")
+                    dodge_directions.append("right")
 
         if show_video:
             cv2.imshow("Output", frame)
