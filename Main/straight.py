@@ -47,16 +47,17 @@ class Manager:
 
         while self.timer.get_timer() + distance_to_time(2) > time.time() and feed:
             # object detection
-            feed, frame = vcap.read()
-            obj, avoid_direction = self.detector.check_for_object(frame=frame, distance_to_dodge=25)
-            if obj is not None:
-                self.robot.move(0)
-                self.timer.pause_timer()
+            if self.mode == 2:
+                feed, frame = vcap.read()
+                obj, avoid_direction = self.detector.check_for_object(frame=frame, distance_to_dodge=25)
+                if obj is not None:
+                    self.robot.move(0)
+                    self.timer.pause_timer()
 
-                self.avoid(avoid_direction)
+                    self.avoid(avoid_direction)
 
-                self.robot.move(1)
-                self.timer.resume_timer()
+                    self.robot.move(1)
+                    self.timer.resume_timer()
         self.robot.move(0)
 
         # supposedly we are at point B
@@ -70,16 +71,17 @@ class Manager:
 
         while self.timer.get_timer() + distance_to_time() > time.time():
             # object detection
-            feed, frame = vcap.read()
-            obj, avoid_direction = self.detector.check_for_object(frame=frame, distance_to_dodge=25)
-            if obj is not None:
-                self.robot.move(0)
-                self.timer.pause_timer()
+            if self.mode == 2:
+                feed, frame = vcap.read()
+                obj, avoid_direction = self.detector.check_for_object(frame=frame, distance_to_dodge=25)
+                if obj is not None:
+                    self.robot.move(0)
+                    self.timer.pause_timer()
 
-                self.avoid(avoid_direction)
+                    self.avoid(avoid_direction)
 
-                self.robot.move(1)
-                self.timer.resume_timer()
+                    self.robot.move(1)
+                    self.timer.resume_timer()
 
         self.robot.move(0)
 
