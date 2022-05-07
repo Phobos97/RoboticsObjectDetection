@@ -3,6 +3,14 @@ import matplotlib.pyplot as plt
 
 
 def distance_to_time(distance):
+    """
+    Returns the time it takes to travel a given distance.
+
+    use a speed of 1.
+
+    :param distance:
+    :return:
+    """
     p = np.array([ 0.03314466, -0.07916051])
     return p[0] * distance + p[1]
 
