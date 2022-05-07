@@ -39,5 +39,8 @@ class Timer:
         else:
             return time.time() - self.timestart
 
+    def get_start_time(self):
+        return self.timestart
+
     def is_paused(self):
         return self.paused

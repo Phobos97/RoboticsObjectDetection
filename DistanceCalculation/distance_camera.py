@@ -30,7 +30,7 @@ def get_distance(vFov2: float, alpha: float, y: float) -> float:
 if __name__ == "__main__":
     # diagonal fov
     dFov = 55
-    # vertical fov
+    # vertical fov (we know it for the picar webcam)
     vFov = 41
 
     cap = cv2.VideoCapture(0)
