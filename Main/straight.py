@@ -2,15 +2,24 @@ import multiprocessing
 import time
 import argparse
 import cv2
+import sys
+import os
+from pathlib import Path
+
+# modules
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root_dir = str(Path(script_dir).parents[0])
+sys.path.append(project_root_dir)
 
 from timer import Timer
 from ObjectDetection.object_detection import ObjectDetector
 from RobotControl.bouncebot_control import BounceBot
 from RobotControl.plot_distance_vs_time import distance_to_time
 
+
 class Manager:
     def __init__(self, mode):
-        self.timer = Timer
+        self.timer = Timer()
         self.detector = ObjectDetector()
         self.robot = BounceBot()
 
@@ -45,7 +54,7 @@ class Manager:
             feed = False
             raise ValueError("Could not connect to the camera.")
 
-        while self.timer.get_timer() + distance_to_time(2) > time.time() and feed:
+        while self.timer.get_timer() < distance_to_time(200) and feed:
             # object detection
             if self.mode == 2:
                 feed, frame = vcap.read()
@@ -69,7 +78,7 @@ class Manager:
         self.timer.start_timer()
         self.robot.move(1)
 
-        while self.timer.get_timer() + distance_to_time() > time.time():
+        while self.timer.get_timer() < distance_to_time(200) and feed:
             # object detection
             if self.mode == 2:
                 feed, frame = vcap.read()
