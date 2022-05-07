@@ -11,7 +11,7 @@ def distance_to_time(distance):
     :param distance:
     :return:
     """
-    p = np.array([ 0.03314466, -0.07916051])
+    p = np.array([0.03314466, -0.07916051])
     return p[0] * distance + p[1]
 
 

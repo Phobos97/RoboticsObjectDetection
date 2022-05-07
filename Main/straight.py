@@ -58,7 +58,8 @@ class Manager:
             # object detection
             if self.mode == 2:
                 feed, frame = vcap.read()
-                obj, avoid_direction = self.detector.check_for_object(frame=frame, distance_to_dodge=25)
+                obj, avoid_direction = self.detector.check_for_object(frame=frame, distance_to_dodge=25,
+                                                                      show_video=True)
                 if obj is not None:
                     self.robot.move(0)
                     self.timer.pause_timer()
@@ -82,7 +83,8 @@ class Manager:
             # object detection
             if self.mode == 2:
                 feed, frame = vcap.read()
-                obj, avoid_direction = self.detector.check_for_object(frame=frame, distance_to_dodge=25)
+                obj, avoid_direction = self.detector.check_for_object(frame=frame, distance_to_dodge=25,
+                                                                      show_video=True)
                 if obj is not None:
                     self.robot.move(0)
                     self.timer.pause_timer()
