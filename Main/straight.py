@@ -110,31 +110,55 @@ def straight(mode):
 
         # initialize bouncebot
         bb = BounceBot()
+
         # initialize object detector
         detector = ObjectDetector()
+
+        # initialize state
+        state = 'straight'
+        has_turned = False
+
+        # parameters
+        time_to_drive_2_meters = distance_to_time(200)
+
         # initialize timer
         timer = Timer()
+        timer.start_timer()
 
         try:
-            for i in range(2):
-                timer.start_timer()
-                bb.move(1)
+            for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+                print(f'{state = }')
 
-                for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-                    if timer.get_timer() < distance_to_time(200):
+                if mode == 2:
+                    obj, direction = detector.check_for_object(frame=frame.array, distance_to_dodge=25, show_video=True)
+                    if obj is not None:
+                        print("OBJECT DETECTED!")
+                        timer.pause_timer()
                         bb.move(0)
-                        break
-                    if mode == 2:
-                        obj, direction = detector.check_for_object(frame=frame, distance_to_dodge=25, show_video=True)
-                        if obj is not None:
-                            print("OBJECT DETECTED!")
-                            timer.pause_timer()
-                            bb.move(0)
-                            bb.around_obstacle(direction=direction)
-                            timer.resume_timer()
-                if i == 0:
-                    print("U-TURN")
+                        bb.around_obstacle(direction=direction)
+                        timer.resume_timer()
+
+                if state == 'straight':
+                    if timer.get_timer() > time_to_drive_2_meters:
+                        if not has_turned:
+                            state = 'turn'
+                            has_turned = True
+                        else:
+                            break    # back at start
+
+                elif state == 'turn':
                     bb.u_turn()
+                    state = 'straight'
+                    timer.start_timer()
+
+                if mode == 1:
+                    cv2.imshow("video", frame.array)  # OpenCV image show
+                rawCapture.truncate(0)  # Release cache
+
+                # quit on keypress
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+
         finally:
             camera.close()
             rawCapture.close()
@@ -144,7 +168,8 @@ def straight(mode):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--challenge_num", help="specifies which challenge the code runs on [1/2/3/4]", default=1)
+    parser.add_argument("--challenge_num", help="specifies which challenge the code runs on [1/2/3/4]", default=1,
+                        type=int)
     return parser.parse_args()
 
 
