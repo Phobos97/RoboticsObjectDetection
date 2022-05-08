@@ -32,14 +32,16 @@ def straight(mode, rendering):
         bb = BounceBot()
 
         # initialize object detector
-        detector = ObjectDetector()
+        detector = ObjectDetector(threshold=0.4)
 
         # initialize state
         state = 'straight'
         has_turned = False
+        has_dodged = False
 
         # parameters
         time_to_drive_2_meters = distance_to_time(200)
+        time_correction = 0
         show_video = True if rendering == 1 else False
 
         # initialize timer
@@ -48,21 +50,25 @@ def straight(mode, rendering):
 
         try:
             bb.move(1)
+            bb.set_camera_top_servo_angle(-20)
             for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
                 print(f'{state = }')
 
-                if mode == 2:
-                    obj, direction = detector.check_for_object(frame=frame.array, distance_to_dodge=25,
+                if mode == 2 and not has_dodged:
+                    obj, direction = detector.check_for_object(frame=frame.array, distance_to_dodge=200,
                                                                show_video=show_video)
                     if obj is not None:
                         print("OBJECT DETECTED!")
                         timer.pause_timer()
                         bb.move(0)
                         bb.around_obstacle(direction=direction)
+                        has_dodged = True
+                        time_correction += distance_to_time(80)
                         timer.resume_timer()
+                        bb.move(1)
 
                 if state == 'straight':
-                    if timer.get_timer() > time_to_drive_2_meters:
+                    if timer.get_timer() > time_to_drive_2_meters - time_correction:
                         if not has_turned:
                             state = 'turn'
                             has_turned = True

@@ -15,7 +15,6 @@ class BounceBot(Picarx):
         super().__init__()
         # initialize servo control
         self.turret_servo = Servo(PWM('P3'))
-        self.turret_servo.angle(0)
 
         # initialize solenoid control
         self.turret_solenoid_1 = Pin("D0")
@@ -37,8 +36,14 @@ class BounceBot(Picarx):
         self.camera_servo2_angular_speed = 3  # deg / frame
 
         self.turret_servo_current_angle = 0
-        self.turret_servo_max_angle = 45
+        self.turret_servo_max_angle = 35
         self.turret_servo_angular_speed = 3  # deg / frame
+
+        # set all servo angles to 0
+        self.set_camera_bottom_servo_angle(0)
+        self.set_camera_top_servo_angle(0)
+        self.set_turret_servo_angle(0)
+        self.set_direction_servo_angle(0)
 
     def reset_servo_angles(self):
         self.set_camera_bottom_servo_angle(0)
@@ -155,6 +160,7 @@ class BounceBot(Picarx):
         time.sleep(1.4)
         self.move(0)
         self.set_direction_servo_angle(0)
+        time.sleep(0.5)
 
     def turn_270(self, direction='right'):
         """
@@ -188,6 +194,7 @@ class BounceBot(Picarx):
         self.move(1)
         time.sleep(0.2)
         self.move(0)
+        time.sleep(0.5)
 
     def u_turn(self, direction='right'):
         if direction == 'right':
@@ -202,13 +209,14 @@ class BounceBot(Picarx):
         self.set_direction_servo_angle(angle)
         time.sleep(1)
         self.move(1)
-        time.sleep(3.9)
+        time.sleep(4.0)
         self.move(0)
         self.set_direction_servo_angle(0)
         time.sleep(0.5)
         self.move(1)
-        time.sleep(0.4)
+        time.sleep(0.6)
         self.move(0)
+        time.sleep(0.5)
 
     def around_obstacle(self, direction='right'):
         """

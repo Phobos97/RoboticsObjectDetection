@@ -8,7 +8,7 @@ import os
 
 
 class ObjectDetector:
-    def __init__(self, object_names=["CUP", "BOOK", "BOTTLE"], threshold=.45):
+    def __init__(self, object_names=["CUP", "BOOK", "BOTTLE", "BED"], threshold=.45):
         self.class_names = []
 
         file_path = os.path.realpath(__file__)
@@ -35,9 +35,10 @@ class ObjectDetector:
             for classId, confidence, box in zip(classIds.flatten(), confs.flatten(), bbox):
                 if self.class_names[classId - 1].upper() in self.object_names:
                     color = (0, 255, 0)
-                    found_objects.append((classId, confidence, box))
+                    # found_objects.append((classId, confidence, box))
                 else:
                     color = (255, 0, 0)
+                found_objects.append((classId, confidence, box))
                 cv2.rectangle(frame, box, color=color, thickness=2)
                 cv2.putText(frame, self.class_names[classId - 1].upper(), (box[0] + 10, box[1] + 30),
                             cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
@@ -49,7 +50,20 @@ class ObjectDetector:
         dodge_directions = []
         for object in found_objects:
             lower_bounding_line = object[2][1] + object[2][3]
-            if lower_bounding_line > distance_to_dodge:
+            upper_bounding_line = object[2][1]
+
+            width = object[2][2]
+            height = object[2][3]
+
+            if lower_bounding_line > distance_to_dodge\
+                    and 250 > width > 120 \
+                    and 250 > height > 120:
+
+                print(f'{lower_bounding_line = }')
+                print(f'{upper_bounding_line = }')
+                print(f'{width = }')
+                print(f'{height = }')
+
                 close_objects.append(object)
 
                 left_edge = object[2][0]
