@@ -126,6 +126,7 @@ def straight(mode):
         timer.start_timer()
 
         try:
+            bb.move(1)
             for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
                 print(f'{state = }')
 
@@ -144,12 +145,14 @@ def straight(mode):
                             state = 'turn'
                             has_turned = True
                         else:
+                            bb.move(0)
                             break    # back at start
 
                 elif state == 'turn':
                     bb.u_turn()
                     state = 'straight'
                     timer.start_timer()
+                    bb.move(1)
 
                 if mode == 1:
                     cv2.imshow("video", frame.array)  # OpenCV image show
