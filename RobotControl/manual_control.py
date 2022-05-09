@@ -6,6 +6,14 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 import time
 
+import os, sys
+from pathlib import Path
+
+# modules
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root_dir = str(Path(script_dir).parents[0])
+sys.path.append(project_root_dir)
+
 
 class ManualControl:
     def __init__(self, bouncebot, camera):
@@ -41,7 +49,6 @@ class ManualControl:
             elif i == 4:
                 self.bouncebot.rotate_turret(direction)
 
-
     def update(self):
         pygame.event.pump()
         keys = pygame.key.get_pressed()
@@ -72,6 +79,8 @@ class ManualControl:
             self.bouncebot.reset_servo_angles()
 
         if keys[pygame.K_SPACE]:   # fire solenoid
+            self.bouncebot.set_camera_top_servo_angle(-30)
+
             if self.solenoid_timeout == 0:
                 self.solenoid_timeout = 24
                 self.bouncebot.activate_solenoid(0.5)
@@ -119,6 +128,10 @@ def main():
         try:
             for frame in camera.capture_continuous(rawCapture, format="bgr",
                                                    use_video_port=True):  # use_video_port=True
+
+                print(f'{bb.camera_servo1_current_angle = }')
+                print(f'{bb.camera_servo2_current_angle = }')
+
                 # update the pygame display
                 cv2.imshow("video", frame.array)  # OpenCV image show
                 rawCapture.truncate(0)  # Release cache

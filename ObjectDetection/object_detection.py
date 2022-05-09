@@ -1,7 +1,6 @@
 from operator import itemgetter
 
 import cv2
-import numpy as np
 from RobotControl.video_playback import read_video
 import os
 
@@ -27,7 +26,7 @@ class ObjectDetector:
         self.object_names = object_names
         self.threshold = threshold
 
-    def check_for_object(self, frame, distance_to_dodge=320, show_video=False):
+    def check_for_object(self, frame, distance_to_dodge=320, all_objects=False, show_video=False):
         classIds, confs, bbox = self.net.detect(frame, confThreshold=self.threshold)
 
         found_objects = []
@@ -35,10 +34,12 @@ class ObjectDetector:
             for classId, confidence, box in zip(classIds.flatten(), confs.flatten(), bbox):
                 if self.class_names[classId - 1].upper() in self.object_names:
                     color = (0, 255, 0)
-                    # found_objects.append((classId, confidence, box))
+                    if not all_objects:
+                        found_objects.append((classId, confidence, box))
                 else:
                     color = (255, 0, 0)
-                found_objects.append((classId, confidence, box))
+                if all_objects:
+                    found_objects.append((classId, confidence, box))
                 cv2.rectangle(frame, box, color=color, thickness=2)
                 cv2.putText(frame, self.class_names[classId - 1].upper(), (box[0] + 10, box[1] + 30),
                             cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
@@ -48,6 +49,8 @@ class ObjectDetector:
 
         close_objects = []
         dodge_directions = []
+
+        print('-----\n')
         for object in found_objects:
             lower_bounding_line = object[2][1] + object[2][3]
             upper_bounding_line = object[2][1]
@@ -55,16 +58,18 @@ class ObjectDetector:
             width = object[2][2]
             height = object[2][3]
 
-            if lower_bounding_line > distance_to_dodge\
-                    and 250 > width > 120 \
-                    and 250 > height > 120:
+            print(f'{lower_bounding_line = }')
+            print(f'{upper_bounding_line = }')
+            print(f'{width = }')
+            print(f'{height = }')
 
-                print(f'{lower_bounding_line = }')
-                print(f'{upper_bounding_line = }')
-                print(f'{width = }')
-                print(f'{height = }')
+            if lower_bounding_line > distance_to_dodge \
+                    and 550 > width > 150 \
+                    and 550 > height > 150:
 
                 close_objects.append(object)
+                cv2.imshow("Output", frame)
+                cv2.waitKey(1)
 
                 left_edge = object[2][0]
                 right_edge = 640 - (object[2][0] + object[2][2])

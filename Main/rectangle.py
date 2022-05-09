@@ -1,4 +1,3 @@
-import multiprocessing
 import time
 import argparse
 import cv2
@@ -8,7 +7,6 @@ from pathlib import Path
 
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-import pygame
 
 # modules
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -39,51 +37,108 @@ def rectangle(mode, rendering):
 
         # parameters
         show_video = True if rendering == 1 else False
-
-        # distances to travel (in cm)
-        distances = [distance_to_time(200), distance_to_time(100), distance_to_time(200), distance_to_time(100)]
+        pre_turn_correction = distance_to_time(10)
+        post_turn_correction = distance_to_time(40)
+        distances = [distance_to_time(200) - pre_turn_correction,    # distances to travel (in cm)
+                     distance_to_time(100) - pre_turn_correction - post_turn_correction,
+                     distance_to_time(200) - pre_turn_correction - post_turn_correction,
+                     distance_to_time(100) - post_turn_correction]
         time_correction = 0
         turns = 0
         has_dodged = False
+        dir_bias = 0.5
+        dir_angle = 5
+
+        # start stop timer
+        ss_timer = Timer()
+        ss_time = 0.25 #s
+        move = True
+        ss_timer.start_timer()
 
         # initialize timer
         timer = Timer()
         timer.start_timer()
 
         try:
+            # set initial state
             bb.move(1)
-            bb.set_camera_top_servo_angle(-20)
+            bb.set_camera_top_servo_angle(-21)
+            bb.set_camera_bottom_servo_angle(6)
+            bb.set_direction_servo_angle(-5)
+            bb.set_direction_servo_angle(0)
+            time.sleep(0.5)
+
             for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
                 print(f'{state = }')
+                print(f'{dir_angle = }')
 
+                # start or stop, and change the direction of the dir_servo
+                if ss_timer.get_timer() > ss_time:
+                    if move:
+                        bb.move(0)
+                        move = False
+                        timer.pause_timer()
+                    else:
+                        bb.move(1)
+                        move = True
+                        dir_angle *= -1
+                        bb.set_direction_servo_angle(dir_angle + dir_bias)
+                        timer.resume_timer()
+                    ss_timer.start_timer()
+
+                # check for obstacles
                 if mode == 2 and not has_dodged:
-                    obj, direction = detector.check_for_object(frame=frame.array, distance_to_dodge=200,
-                                                               show_video=show_video)
+                    obj, direction = detector.check_for_object(frame=frame.array, distance_to_dodge=150,
+                                                               all_objects=False, show_video=show_video)
                     if obj is not None:
                         print("OBJECT DETECTED!")
+
+                        # set the robot to moving if it wasn't already
+                        if not move:
+                            move = True
+                            timer.resume_timer()
+
                         timer.pause_timer()
                         bb.move(0)
                         bb.around_obstacle(direction=direction)
+                        time_correction += distance_to_time(80)    # correct for manoeuvre
                         has_dodged = True
-                        time_correction += distance_to_time(80)
+
+                        # prepare to continue straight
+                        dir_angle = abs(dir_angle)
+                        bb.set_direction_servo_angle(dir_angle + dir_bias)
+                        ss_timer.start_timer()
                         timer.resume_timer()
                         bb.move(1)
 
+                # move along a straight line
                 if state == 'straight':
+                    # turn when the timer is up
                     if timer.get_timer() > distances[turns] - time_correction:
-                        if turns < 4:
+                        if turns < 3:
                             state = 'turn'
                             turns += 1
                             time_correction = 0
                         else:
                             bb.move(0)
-                            break  # back at start
+                            break   # back at marker
 
+                # turn 90 degrees right
                 elif state == 'turn':
+                    # set the robot to moving if it wasn't already
+                    if not move:
+                        move = True
+                        timer.resume_timer()
+
                     bb.turn_90()
                     state = 'straight'
-                    # turns = turns + 1 # if index != 3 else 0
                     timer.start_timer()
+
+                    # prepare to move straight
+                    time_correction = 0
+                    dir_angle = abs(dir_angle)
+                    bb.set_direction_servo_angle(dir_angle + dir_bias)
+                    ss_timer.start_timer()
                     bb.move(1)
 
                 if mode == 1 and show_video:
@@ -97,7 +152,6 @@ def rectangle(mode, rendering):
         finally:
             camera.close()
             rawCapture.close()
-            pygame.quit()
             bb.close()
 
 
