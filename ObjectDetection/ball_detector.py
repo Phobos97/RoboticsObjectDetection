@@ -7,7 +7,7 @@ import os
 import numpy as np
 
 
-class ObjectDetector:
+class BallDetector:
     def __init__(self):
         self.red_lower = np.array([136, 87, 111], np.uint8)
         self.red_upper = np.array([180, 255, 255], np.uint8)
@@ -57,7 +57,7 @@ class ObjectDetector:
 
 
 if __name__ == '__main__':
-    detector = ObjectDetector()
+    detector = BallDetector()
     video = read_video(path="../TestVideos/daniel/20220516-165321.h264")
 
     for frame in video:
