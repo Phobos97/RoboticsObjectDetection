@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 
-vcap = cv2.VideoCapture("TestVideos/daniel/20220516-165321.h264")
+vcap = cv2.VideoCapture("../TestVideos/daniel/20220516-165321.h264")
 feed = vcap.isOpened()
 
 while feed:
