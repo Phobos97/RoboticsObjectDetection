@@ -34,13 +34,17 @@ class ObjectDetector:
                 cv2.imshow("Output", frame)
                 cv2.waitKey(1)
 
-            return "stand"
+            return "stand", False
 
         x, y, w, h = cv2.boundingRect(biggest_contour)
         frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
         cv2.putText(frame, "BALL", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
 
-        if x + 0.5*w > 160:
+        fire = False
+        if y + h > frame.shape[0] - 20:
+            fire = True
+
+        if x + 0.5*w > frame.shape[1]*0.5:
             direction = "right"
         else:
             direction = "left"
@@ -49,7 +53,7 @@ class ObjectDetector:
             cv2.imshow("Output", frame)
             cv2.waitKey(1)
 
-        return direction
+        return direction, fire
 
 
 if __name__ == '__main__':
@@ -57,9 +61,12 @@ if __name__ == '__main__':
     video = read_video(path="../TestVideos/daniel/20220516-165321.h264")
 
     for frame in video:
-        direction = detector.check_for_object(frame, show_video=True)
-        print(direction)
-        # if direction != "stand":
-        #     time.sleep(0.1)
+        direction, fire = detector.check_for_object(frame, show_video=True)
+        if direction != "stand":
+            print(direction)
+            time.sleep(0.1)
+        if fire:
+            print(fire)
+            time.sleep(0.5)
 
 
