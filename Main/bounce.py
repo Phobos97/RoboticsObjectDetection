@@ -67,9 +67,11 @@ def bounce(rendering):
             elif state == 'left':
                 timer.reversed = True
                 bb.move(-1)
+                bb.set_turret_servo_angle(-20)
             elif state == 'right':
                 timer.reversed = False
                 bb.move(1)
+                bb.set_turret_servo_angle(20)
 
         finally:
             camera.close()
