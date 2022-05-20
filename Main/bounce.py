@@ -47,6 +47,9 @@ def bounce(rendering):
 
         # main loop
         try:
+            # initial state
+            bb.set_camera_bottom_servo_angle(-90)
+
             # continuous video stream
             for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
                 print(f'{state = }')
