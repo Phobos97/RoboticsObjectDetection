@@ -8,10 +8,13 @@ import numpy as np
 
 
 class BallDetector:
-    def __init__(self):
+    def __init__(self, offset=0):
         self.red_lower = np.array([136, 87, 111], np.uint8)
         self.red_upper = np.array([180, 255, 255], np.uint8)
         self.kernel = np.ones((1, 1), "uint8")
+
+        # bigger offset means it will go to the left earlier
+        self.offset = offset
 
     def check_for_object(self, frame, show_video=False):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -44,7 +47,7 @@ class BallDetector:
         if y + h > frame.shape[0] - 20:
             fire = True
 
-        if x + 0.5*w > frame.shape[1]*0.5:
+        if x + 0.5*w > frame.shape[1]*0.5 + self.offset:
             direction = "right"
         else:
             direction = "left"
@@ -57,7 +60,8 @@ class BallDetector:
 
 
 if __name__ == '__main__':
-    detector = BallDetector()
+    # bigger offset means it will go to the left earlier
+    detector = BallDetector(offset=150)
     video = read_video(path="../TestVideos/daniel/20220516-165321.h264")
 
     for frame in video:
