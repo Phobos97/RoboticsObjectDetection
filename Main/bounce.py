@@ -44,6 +44,7 @@ def bounce(rendering):
 
         # initialize state
         state = 'stand'
+        average_direction = 0
 
         # main loop
         try:
@@ -62,9 +63,16 @@ def bounce(rendering):
                     direction, fire = detector.check_for_object(frame.array, show_video=show_video)
                     state = direction
 
+                    if direction == "right":
+                        average_direction += 1
+                    else:
+                        average_direction -= 1
+
                     if fire:
                         bb.activate_solenoid(0.2)
 
+                final_turn_angle = 20 if average_direction > 0 else -20
+                
                 if state == 'stand':
                     # bb.move(0)
                     pass
