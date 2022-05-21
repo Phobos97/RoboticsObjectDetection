@@ -14,6 +14,8 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root_dir = str(Path(script_dir).parents[0])
 sys.path.append(project_root_dir)
 
+from ObjectDetection.object_detection import ObjectDetector
+
 
 class ManualControl:
     def __init__(self, bouncebot, camera):
@@ -49,6 +51,7 @@ class ManualControl:
             elif i == 4:
                 self.bouncebot.rotate_turret(direction)
 
+
     def update(self):
         pygame.event.pump()
         keys = pygame.key.get_pressed()
@@ -79,11 +82,11 @@ class ManualControl:
             self.bouncebot.reset_servo_angles()
 
         if keys[pygame.K_SPACE]:   # fire solenoid
-            self.bouncebot.set_camera_top_servo_angle(-30)
+            # self.bouncebot.set_camera_top_servo_angle(-30)
 
             if self.solenoid_timeout == 0:
-                self.solenoid_timeout = 24
-                self.bouncebot.activate_solenoid(0.5)
+                self.solenoid_timeout = 10
+                self.bouncebot.activate_solenoid(0.2)
 
         if keys[pygame.K_r]:   # start/stop recording
             if not self.recording and self.recording_timeout == 0:
@@ -124,13 +127,16 @@ def main():
         # initialize manual controller
         mc = ManualControl(bb, camera)
 
+        # initialize object detector
+        detector = ObjectDetector(threshold=0.35)
+
         # main control loop
         try:
             for frame in camera.capture_continuous(rawCapture, format="bgr",
                                                    use_video_port=True):  # use_video_port=True
 
-                print(f'{bb.camera_servo1_current_angle = }')
-                print(f'{bb.camera_servo2_current_angle = }')
+                # obj, direction = detector.check_for_object(frame=frame.array, distance_to_dodge=175,
+                #                                            show_video=True)
 
                 # update the pygame display
                 cv2.imshow("video", frame.array)  # OpenCV image show

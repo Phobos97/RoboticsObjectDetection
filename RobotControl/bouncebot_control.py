@@ -28,7 +28,7 @@ class BounceBot(Picarx):
         self.dir_servo_angular_speed = 3  # deg / frame
 
         self.camera_servo1_current_angle = 0
-        self.camera_servo1_max_angle = 60
+        self.camera_servo1_max_angle = 90
         self.camera_servo1_angular_speed = 3  # deg / frame
 
         self.camera_servo2_current_angle = 0
@@ -68,10 +68,10 @@ class BounceBot(Picarx):
         :return:
         """
         self.turret_solenoid_1.value(1)
-        self.turret_solenoid_2.value(1)
+        # self.turret_solenoid_2.value(1)
         time.sleep(t)
         self.turret_solenoid_1.value(0)
-        self.turret_solenoid_2.value(0)
+        # self.turret_solenoid_2.value(0)
 
     def set_camera_bottom_servo_angle(self, angle):
         self.set_camera_servo1_angle(

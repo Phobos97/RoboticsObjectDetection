@@ -59,22 +59,30 @@ def bounce(rendering):
                     print('out of bounds')
                     state = 'stand'
                 else:
-                    direction, fire = detector.check_for_object(frame, show_video=show_video)
+                    direction, fire = detector.check_for_object(frame.array, show_video=show_video)
                     state = direction
 
                     if fire:
                         bb.activate_solenoid(0.2)
 
-            if state == 'stand':
-                bb.move(0)
-            elif state == 'left':
-                timer.reversed = True
-                bb.move(-1)
-                bb.set_turret_servo_angle(-20)
-            elif state == 'right':
-                timer.reversed = False
-                bb.move(1)
-                bb.set_turret_servo_angle(20)
+                if state == 'stand':
+                    # bb.move(0)
+                    pass
+                elif state == 'left':
+                    timer.reversed = True
+                    # bb.move(-1)
+                    bb.set_turret_servo_angle(-20)
+                elif state == 'right':
+                    timer.reversed = False
+                    # bb.move(1)
+                    bb.set_turret_servo_angle(20)
+
+                # clear the stream in preparation for the next frame
+                rawCapture.truncate(0)  # Release cache
+
+                # quit on keypress
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
 
         finally:
             camera.close()
