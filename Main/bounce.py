@@ -48,11 +48,11 @@ def bounce(rendering):
 
         # main loop
         try:
-            # initial state
-            bb.set_camera_bottom_servo_angle(-90)
-
             # continuous video stream
-            for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+            for raw_frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+                # get frame, flipped
+                frame = cv2.flip(raw_frame.array, -1)
+
                 print(f'{state = }')
 
                 # check if in bounds
@@ -60,7 +60,7 @@ def bounce(rendering):
                     print('out of bounds')
                     state = 'stand'
                 else:
-                    direction, fire = detector.check_for_object(frame.array, show_video=show_video)
+                    direction, fire = detector.check_for_object(frame, show_video=show_video)
                     state = direction
 
                     if direction == "right":
