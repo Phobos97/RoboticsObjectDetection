@@ -23,7 +23,7 @@ class BallDetector:
         # minimum area (in number of pixels) for an object to count as a detection
         self.minimum_size = minimum_size
 
-    def check_for_object(self, frame, show_video=False):
+    def check_for_object(self, frame):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         red_mask = cv2.inRange(hsv, self.red_lower, self.red_upper)
@@ -40,10 +40,6 @@ class BallDetector:
                 largest = cv2.contourArea(contour)
 
         if biggest_contour is None:
-            if show_video:
-                cv2.imshow("Output", frame)
-                cv2.waitKey(1)
-
             return "stand", False
 
         x, y, w, h = cv2.boundingRect(biggest_contour)
@@ -59,11 +55,7 @@ class BallDetector:
         else:
             direction = "left"
 
-        if show_video:
-            cv2.imshow("Output", frame)
-            cv2.waitKey(1)
-
-        return direction, fire
+        return direction, fire, frame
 
 
 if __name__ == '__main__':
