@@ -14,17 +14,17 @@ class ArucoDetector():
         self.camera_matrix = npzfile['mtx']
         self.dist_coeffs = npzfile['dist']
 
-    def aruco_distance(self, corners):
+    def aruco_angle(self, corners):
         rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(corners,
                                                               self.aruco_size,
                                                               self.camera_matrix,
                                                               self.dist_coeffs)
 
         # get single marker
-        rvec = rvecs[0]
-        tvec = tvecs[0]
+        x, z = tvecs[0][0][0], tvecs[0][0][2]
+        angle = np.rad2deg(np.arctan(x/z))
 
-        return rvecs, tvecs
+        return angle
 
     def detect_markers(self, frame, return_image=False):
         # detect markers in frame
@@ -37,6 +37,8 @@ class ArucoDetector():
         if len(corners) > 0:
             # flatten the ArUco IDs list
             ids = ids.flatten()
+
+            angle = self.aruco_angle(corners)
 
             # loop over the detected ArUCo corners
             for (markerCorner, markerID) in zip(corners, ids):
@@ -69,3 +71,5 @@ class ArucoDetector():
                             (topLeft[0], topLeft[1] - 15),
                             cv2.FONT_HERSHEY_SIMPLEX,
                             0.5, (0, 255, 0), 2)
+
+            return angle, frame
