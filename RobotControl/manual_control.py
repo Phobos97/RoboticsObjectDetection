@@ -132,14 +132,13 @@ def main():
 
         # main control loop
         try:
-            for frame in camera.capture_continuous(rawCapture, format="bgr",
+            for raw_frame in camera.capture_continuous(rawCapture, format="bgr",
                                                    use_video_port=True):  # use_video_port=True
-
-                # obj, direction = detector.check_for_object(frame=frame.array, distance_to_dodge=175,
-                #                                            show_video=True)
+                # get frame, flipped
+                frame = cv2.flip(raw_frame.array, -1)
 
                 # update the pygame display
-                cv2.imshow("video", frame.array)  # OpenCV image show
+                cv2.imshow("video", frame)  # OpenCV image show
                 rawCapture.truncate(0)  # Release cache
 
                 # control the robot

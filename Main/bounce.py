@@ -40,7 +40,7 @@ def bounce(rendering):
         # parameters
         max_distance = 100   # cm, max distance to travel forward/backward
         time_to_max_distance = distance_to_time(max_distance)    # s
-        show_video = True if rendering == 1 else False
+        show_video = True if rendering else False
 
         # initialize state
         state = 'stand'
@@ -63,6 +63,7 @@ def bounce(rendering):
                     direction, fire = detector.check_for_object(frame, show_video=show_video)
                     state = direction
 
+                    # keep track of average direction to determine the direction of the turret
                     if direction == "right":
                         average_direction += 1
                     else:
@@ -100,7 +101,7 @@ def bounce(rendering):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-r", "--rendering", help="render video?", default=0, type=int)
+    parser.add_argument("-r", "--rendering", help="render video?", action="store_true")
     return parser.parse_args()
 
 
