@@ -1,17 +1,32 @@
 import time
-from operator import itemgetter
 
 import cv2
 from RobotControl.video_playback import read_video
-import os
 import numpy as np
 
 
+lower_bounds = {
+    "red": [136, 87, 111],
+    "pink": [145, 100, 20],
+    "purple": [125, 50, 20],
+    "green": [40, 50, 20],
+    "blue": [90, 50, 50],
+    "yellow": [25, 50, 20]
+}
+upper_bounds = {
+    "red": [180, 255, 255],
+    "pink": [160, 255, 255],
+    "purple": [150, 255, 255],
+    "green": [85, 255, 255],
+    "blue": [150, 255, 255],
+    "yellow": [35, 255, 255]
+}
+
+
 class BallDetector:
-    def __init__(self, offset=0, fire_trigger_timing=20, minimum_size=300):
-        self.red_lower = np.array([136, 87, 111], np.uint8)
-        self.red_upper = np.array([180, 255, 255], np.uint8)
-        self.kernel = np.ones((1, 1), "uint8")
+    def __init__(self, ball_color="red", offset=0, fire_trigger_timing=20, minimum_size=300):
+        self.color_lower = np.array(lower_bounds[ball_color], np.uint8)
+        self.color_upper = np.array(upper_bounds[ball_color], np.uint8)
 
         # bigger offset means it will go to the left earlier
         self.offset = offset
@@ -23,11 +38,11 @@ class BallDetector:
         # minimum area (in number of pixels) for an object to count as a detection
         self.minimum_size = minimum_size
 
-    def check_for_object(self, frame):
+    def check_for_object(self, frame, render=False):
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-        red_mask = cv2.inRange(hsv, self.red_lower, self.red_upper)
-        red_mask = cv2.dilate(red_mask, self.kernel)
+        red_mask = cv2.inRange(hsv, self.color_lower, self.color_upper)
         contours, hierarchy = cv2.findContours(red_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         largest = self.minimum_size
@@ -50,10 +65,14 @@ class BallDetector:
         if y + h > frame.shape[0] - self.fire_trigger_timing:
             fire = True
 
+        # reverse?
         if x + 0.5*w > frame.shape[1]*0.5 + self.offset:
             direction = "right"
         else:
             direction = "left"
+
+        if render:
+            cv2.imshow("Output", frame)
 
         return direction, fire, frame
 
