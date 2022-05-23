@@ -39,7 +39,6 @@ class BallDetector:
         self.minimum_size = minimum_size
 
     def check_for_object(self, frame, render=False):
-        frame = cv2.rotate(frame, cv2.ROTATE_180)
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
         red_mask = cv2.inRange(hsv, self.color_lower, self.color_upper)
