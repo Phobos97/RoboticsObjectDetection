@@ -24,7 +24,7 @@ upper_bounds = {
 
 
 class BallDetector:
-    def __init__(self, ball_color="red", offset=0, fire_trigger_timing=20, minimum_size=300):
+    def __init__(self, ball_color, offset=0, fire_trigger_timing=20, minimum_size=300):
         self.color_lower = np.array(lower_bounds[ball_color], np.uint8)
         self.color_upper = np.array(upper_bounds[ball_color], np.uint8)
 
@@ -41,8 +41,8 @@ class BallDetector:
     def check_for_object(self, frame, render=False):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-        red_mask = cv2.inRange(hsv, self.color_lower, self.color_upper)
-        contours, hierarchy = cv2.findContours(red_mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        mask = cv2.inRange(hsv, self.color_lower, self.color_upper)
+        contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         largest = self.minimum_size
         biggest_contour = None

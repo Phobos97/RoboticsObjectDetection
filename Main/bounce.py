@@ -19,7 +19,7 @@ from RobotControl.bouncebot_control import BounceBot
 from RobotControl.plot_distance_vs_time import distance_to_time
 
 
-def bounce(rendering):
+def bounce(rendering, ball_color):
     with PiCamera() as camera:
         camera.resolution = (640, 480)
         camera.framerate = 24
@@ -30,7 +30,7 @@ def bounce(rendering):
         bb = BounceBot()
 
         # initialize ball detector
-        detector = BallDetector()
+        detector = BallDetector(ball_color)
 
         # initialize timer
         timer = Timer()
@@ -102,10 +102,12 @@ def bounce(rendering):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-r", "--rendering", help="render video?", action="store_true")
+    parser.add_argument("-c", "--ball_color", help="color of the ball [blue/green/yellow/red/pink/purple]",\
+                        default="red")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
 
-    bounce(args.rendering)
+    bounce(args.rendering, args.ball_color)
