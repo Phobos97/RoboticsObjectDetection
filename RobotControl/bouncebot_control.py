@@ -61,12 +61,16 @@ class BounceBot(Picarx):
         self.forward(0)
         self.reset_servo_angles()
 
-    def activate_solenoid(self, t):
+    def activate_solenoid(self, t, delay=None):
         """
         Activate the solenoid for a certain amount of time t.
         :param t: time in seconds
         :return:
         """
+
+        if delay:
+            time.sleep(delay)
+
         self.turret_solenoid_1.value(1)
         # self.turret_solenoid_2.value(1)
         time.sleep(t)

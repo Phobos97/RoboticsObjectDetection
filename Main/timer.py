@@ -6,7 +6,6 @@ class Timer:
         self.timestart = None
         self.timepause = None
         self.paused = None
-        self.reversed = False   # whether to run the timer backwards
 
     def start_timer(self):
         self.timestart = time.time()
@@ -28,7 +27,11 @@ class Timer:
         if not self.paused:
             raise ValueError("time is not paused")
 
-        elapsed_pause = time.time() - self.timepause
+        if self.reversed:
+            elapsed_pause = self.timepause - time.time()
+        else:
+            elapsed_pause = time.time() - self.timepause
+
         self.timestart = self.timestart + elapsed_pause
         self.paused = False
 
@@ -48,3 +51,22 @@ class Timer:
 
     def is_paused(self):
         return self.paused
+
+
+if __name__ == "__main__":
+    timer = Timer()
+    # print(timer.get_timer())
+
+    timer.start_timer()
+    print(f'{timer.timestart = }')
+    time.sleep(1)
+    timer.pause_timer()
+
+    print(timer.get_timer())
+    timer.reversed = True
+    # time.sleep(1)
+    timer.resume_timer()
+    print(f'{timer.timestart = }')
+    print(timer.get_timer())
+    time.sleep(1)
+    print(timer.get_timer())

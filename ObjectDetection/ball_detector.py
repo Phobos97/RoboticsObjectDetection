@@ -7,7 +7,7 @@ import numpy as np
 
 lower_bounds = {
     "red": [136, 87, 111],
-    "pink": [145, 100, 20],
+    "pink": [140, 100, 20],
     "purple": [125, 50, 20],
     "green": [40, 50, 20],
     "blue": [90, 50, 50],
@@ -15,7 +15,7 @@ lower_bounds = {
 }
 upper_bounds = {
     "red": [180, 255, 255],
-    "pink": [160, 255, 255],
+    "pink": [165, 255, 255],
     "purple": [150, 255, 255],
     "green": [85, 255, 255],
     "blue": [150, 255, 255],
@@ -24,12 +24,13 @@ upper_bounds = {
 
 
 class BallDetector:
-    def __init__(self, ball_color, offset=0, fire_trigger_timing=20, minimum_size=300):
+    def __init__(self, ball_color, offset=0, deadzone=80, fire_trigger_timing=20, minimum_size=300):
         self.color_lower = np.array(lower_bounds[ball_color], np.uint8)
         self.color_upper = np.array(upper_bounds[ball_color], np.uint8)
 
         # bigger offset means it will go to the left earlier
         self.offset = offset
+        self.deadzone = deadzone
 
         # how many pixels from the bottom of the screen the object has to be to trigger a fire event
         # 0 means all the way at the bottom
@@ -54,7 +55,7 @@ class BallDetector:
                 largest = cv2.contourArea(contour)
 
         if biggest_contour is None:
-            return "stand", False
+            return "stand", False, frame
 
         x, y, w, h = cv2.boundingRect(biggest_contour)
         frame = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
@@ -65,7 +66,12 @@ class BallDetector:
             fire = True
 
         # reverse?
-        if x + 0.5*w > frame.shape[1]*0.5 + self.offset:
+        x_pos = x + 0.5*w
+        center = frame.shape[1]*0.5 + self.offset
+
+        if np.abs(x_pos - center) < self.deadzone:
+            direction = "stand"
+        elif x_pos > center:
             direction = "right"
         else:
             direction = "left"
@@ -82,7 +88,7 @@ if __name__ == '__main__':
     video = read_video(path="../TestVideos/daniel/20220516-165321.h264")
 
     for frame in video:
-        direction, fire = detector.check_for_object(frame, show_video=True)
+        direction, fire, frame = detector.check_for_object(frame, render=True)
         if direction != "stand":
             print(direction)
             time.sleep(0.1)

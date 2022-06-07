@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import os
 
 
 class ArucoDetector():
@@ -10,7 +11,8 @@ class ArucoDetector():
         self.aruco_size = 10 # cm
 
         # camera characteristics
-        npzfile = np.load('calibration_data.npz')
+        script_dir = os.path.dirname(os.path.realpath(__file__))
+        npzfile = np.load(os.path.join(script_dir, 'calibration_data.npz'))
         self.camera_matrix = npzfile['mtx']
         self.dist_coeffs = npzfile['dist']
 
@@ -32,6 +34,8 @@ class ArucoDetector():
                                                                   self.aruco_dict,
                                                                   parameters=self.aruco_parameters)
 
+
+        angle = None
 
         # verify *at least* one ArUco marker was detected
         if len(corners) > 0:
@@ -71,5 +75,4 @@ class ArucoDetector():
                             (topLeft[0], topLeft[1] - 15),
                             cv2.FONT_HERSHEY_SIMPLEX,
                             0.5, (0, 255, 0), 2)
-
-            return angle, frame
+        return angle, frame

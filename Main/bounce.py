@@ -15,6 +15,7 @@ sys.path.append(project_root_dir)
 
 from timer import Timer
 from ObjectDetection.ball_detector import BallDetector
+from ObjectDetection.aruco.aruco_detector import ArucoDetector
 from RobotControl.bouncebot_control import BounceBot
 from RobotControl.plot_distance_vs_time import distance_to_time
 
@@ -30,21 +31,18 @@ def bounce(rendering, ball_color):
         bb = BounceBot()
 
         # initialize ball detector
-        detector = BallDetector(ball_color)
-
-        # initialize timer
-        timer = Timer()
-        timer.start_timer()
-        timer.pause_timer()
+        ball_detector = BallDetector(ball_color, offset=20, deadzone=70, fire_trigger_timing=5, minimum_size=300)
+        aruco_detector = ArucoDetector()
 
         # parameters
-        max_distance = 100   # cm, max distance to travel forward/backward
-        time_to_max_distance = distance_to_time(max_distance)    # s
-        show_video = True if rendering else False
+        max_distance = -1   # steps
+        current_x = 0
+        speed = 5
+        solenoid_timeout = 0
+        solenoid_delay = 0.1 # s
 
         # initialize state
         state = 'stand'
-        average_direction = 0
 
         # main loop
         try:
@@ -54,38 +52,49 @@ def bounce(rendering, ball_color):
                 frame = cv2.flip(raw_frame.array, -1)
 
                 print(f'{state = }')
+                # print(f'{current_x = }')
+
+                angle, frame = aruco_detector.detect_markers(frame)
+                direction, fire, frame = ball_detector.check_for_object(frame)
+
+                state = direction
+
+                if angle:
+                    bb.set_turret_servo_angle(angle)
+
+                if fire and solenoid_timeout == 0:
+                    print('FIRE!')
+                    bb.activate_solenoid(0.1, solenoid_delay)
+                    bb.activate_solenoid(0.1, solenoid_delay)
+                    bb.activate_solenoid(0.1, solenoid_delay)
+                    solenoid_timeout = 5
 
                 # check if in bounds
-                if abs(timer.get_timer()) > time_to_max_distance:
-                    print('out of bounds')
-                    state = 'stand'
-                else:
-                    direction, fire = detector.check_for_object(frame, show_video=show_video)
-                    state = direction
+                # if current_x > max_distance:
+                #     print('out of bounds right')
+                #     if state == 'right':
+                #         state = 'stand'
+                # elif current_x < -max_distance:
+                #     print('out of bounds left')
+                #     if state == 'left':
+                #         state = 'stand'
 
-                    # keep track of average direction to determine the direction of the turret
-                    if direction == "right":
-                        average_direction += 1
-                    else:
-                        average_direction -= 1
-
-                    if fire:
-                        bb.activate_solenoid(0.2)
-
-                final_turn_angle = 20 if average_direction > 0 else -20
+                if solenoid_timeout > 0:
+                    solenoid_timeout -= 1
                 
                 if state == 'stand':
-                    # bb.move(0)
-                    pass
-                elif state == 'left':
-                    timer.reversed = True
-                    # bb.move(-1)
-                    bb.set_turret_servo_angle(-20)
-                elif state == 'right':
-                    timer.reversed = False
-                    # bb.move(1)
-                    bb.set_turret_servo_angle(20)
+                    bb.move(0)
 
+                elif state == 'left':
+                    bb.move(-speed)
+                    current_x -= 1
+
+                elif state == 'right':
+                    bb.move(speed)
+                    current_x += 1
+
+                if rendering:
+                    cv2.imshow("video", frame)  # OpenCV image show
                 # clear the stream in preparation for the next frame
                 rawCapture.truncate(0)  # Release cache
 

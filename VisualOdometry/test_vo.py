@@ -14,6 +14,7 @@ from RobotControl.video_playback import read_video
 
 
 def main():
+    print("make sure pySLAM is installed in the git directory")
     path = "../TestVideos/SLAM/20220502-133022.h264"
     video = read_video(path)
 

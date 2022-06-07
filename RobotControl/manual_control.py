@@ -82,8 +82,6 @@ class ManualControl:
             self.bouncebot.reset_servo_angles()
 
         if keys[pygame.K_SPACE]:   # fire solenoid
-            # self.bouncebot.set_camera_top_servo_angle(-30)
-
             if self.solenoid_timeout == 0:
                 self.solenoid_timeout = 10
                 self.bouncebot.activate_solenoid(0.2)
@@ -127,9 +125,6 @@ def main():
         # initialize manual controller
         mc = ManualControl(bb, camera)
 
-        # initialize object detector
-        detector = ObjectDetector(threshold=0.35)
-
         # main control loop
         try:
             for raw_frame in camera.capture_continuous(rawCapture, format="bgr",
@@ -146,7 +141,8 @@ def main():
 
                 # quit on keypress
                 if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                    print(f'write image')
+                    cv2.imwrite(f'images/{time.strftime("%Y%m%d-%H%M%S")}.jpg', frame)
 
         finally:
             camera.close()
